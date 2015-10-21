@@ -1,6 +1,6 @@
 import os
 import sys
-from sqlalchemy import Column, ForeignKey, Integer, String
+from sqlalchemy import Column, ForeignKey, Integer, String, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy import create_engine
@@ -30,7 +30,7 @@ class Category(Base):
         return {
             'id': self.id,
             'name': self.name,
-            'imgURL': self.imgURL
+            'imgURL': self.imgURL,
             'user_id': self.user_id
         }
 
@@ -54,7 +54,7 @@ class Item(Base):
 	    'name': self.name,
 	    'description': self.description,
 	    'img': self.imgURL,
-	    'course': self.course
+	    'course': self.course,
         'user_id': self.user_id
 	}
 

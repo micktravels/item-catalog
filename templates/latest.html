@@ -1,0 +1,14 @@
+	<div class="col-md-7 item-list">
+		<h2>Latest Items</h2>
+		<ul>
+			{% for item, category in items %}
+				<li><a href = "{{url_for('showItemDescription', item_id=item.id)}}">
+					<div class="itemlist">
+						<img src="{{item.imgURL}}" alt="{{item.name}}">
+						<h4>{{item.name}}</h4></a>
+						<div class="parent-category">added in {{category.name}}</div>
+					</div>
+				</li>
+			{% endfor %}
+		</ul>
+	</div>
