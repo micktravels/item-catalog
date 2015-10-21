@@ -1,0 +1,16 @@
+	<div class="col-md-7 item-list">
+		<h2>Items for {{category.name}}</h2>
+		{% if 'email' not in session %}
+			<a href="{{url_for('newCategory')}}">Create</a>
+		{% endif %}
+		<ul>
+			{% for item in items %}
+				<li><a href = "{{url_for('showItemDescription', item_id=item.id)}}">
+					<div class="itemlist">
+						<img src="{{item.imgURL}}" alt="{{item.name}}">
+						<h4>{{item.name}}</h4></a>
+					</div>
+				</li>
+			{% endfor %}
+		</ul>
+	</div>

@@ -31,13 +31,11 @@ session = DBSession()
 
 
 # Create anti-forgery state token
-@app.route('/login')
-def showLogin():
+def generateState():
     state = ''.join(random.choice(string.ascii_uppercase + string.digits)
                     for x in xrange(32))
     login_session['state'] = state
-    #return "The current session state is %s" % login_session['state']
-    return render_template('login.html', STATE=state)
+    return state
 
 @app.route('/fbconnect', methods=['POST'])
 def fbconnect():
@@ -117,6 +115,7 @@ def fbdisconnect():
 @app.route('/gconnect', methods=['POST'])
 def gconnect():
     # Validate state token, that 32-character random string thingy
+    print "STATE = " + request.args.get('state')
     if request.args.get('state') != login_session['state']:
         response = make_response(json.dumps('Invalid state parameter.'), 401)
         response.headers['Content-Type'] = 'application/json'
@@ -285,10 +284,11 @@ def categoriesJSON():
 @app.route('/')
 @app.route('/category/')
 def showLatest():
+    state = generateState()
     categories = session.query(Category).order_by(asc(Category.name))
     latestItems = session.query(Item, Category).filter(Item.category_id==Category.id)
     latestItems = latestItems.order_by(desc(Item.addDate)).limit(10)
-    return render_template('index.html', categories=categories, items=latestItems)
+    return render_template('index.html', categories=categories, items=latestItems, state=state)
 
 
 # Create a new category
@@ -341,13 +341,11 @@ def deleteCategory(category_id):
 
 @app.route('/category/<int:category_id>/')
 def showItems(category_id):
+    state = generateState()
     category = session.query(Category).filter_by(id=category_id).one()
+    categories = session.query(Category).order_by(asc(Category.name))
     items = session.query(Item).filter_by(category_id=category_id).all()
-    creator = getUserInfo(category.user_id)
-    if 'user_id' not in login_session or login_session['user_id'] != category_id:
-        return render_template('publicitem.html', items=items, category=category, creator=creator)
-    else:
-        return render_template('item.html', items=items, category=category)
+    return render_template('showitems.html', items=items, category=category, categories=categories, state=state)
 
 @app.route('/item/<int:item_id>')
 def showItemDescription(item_id):
