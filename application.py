@@ -30,12 +30,15 @@ DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
 
-# Create anti-forgery state token
+# Create anti-forgery state token.  Since the Login page is now a modal that's part of every screen,
+# this STATE gets regenerated on every page whenever you aren't logged in
 def generateState():
-    state = ''.join(random.choice(string.ascii_uppercase + string.digits)
+    # only update a random STATE if we aren't already logged in
+    if 'email' not in login_session:
+        state = ''.join(random.choice(string.ascii_uppercase + string.digits)
                     for x in xrange(32))
-    login_session['state'] = state
-    return state
+        login_session['state'] = state
+    return login_session['state']
 
 @app.route('/fbconnect', methods=['POST'])
 def fbconnect():
@@ -218,13 +221,6 @@ def gdisconnect():
     result = h.request(url, 'GET')[0]
 
     if result['status'] == '200':
-        # Reset the user's sesson.
-        del login_session['credentials']
-        del login_session['gplus_id']
-        del login_session['username']
-        del login_session['email']
-        del login_session['picture']
-
         response = make_response(json.dumps('Successfully disconnected.'), 200)
         response.headers['Content-Type'] = 'application/json'
         return response
@@ -252,10 +248,10 @@ def disconnect():
         del login_session['user_id']
         del login_session['provider']
         flash("You have successfully been logged out.")
-        return redirect(url_for('showCategories'))
+        return redirect(url_for('showLatest'))
     else:
         flash("You were not logged in")
-        return redirect(url_for('showCategories'))
+        return redirect(url_for('showLatest'))
 
 
 
@@ -288,7 +284,7 @@ def showLatest():
     categories = session.query(Category).order_by(asc(Category.name))
     latestItems = session.query(Item, Category).filter(Item.category_id==Category.id)
     latestItems = latestItems.order_by(desc(Item.addDate)).limit(10)
-    return render_template('index.html', categories=categories, items=latestItems, state=state)
+    return render_template('index.html', categories=categories, items=latestItems, STATE=state)
 
 
 # Create a new category
@@ -345,7 +341,7 @@ def showItems(category_id):
     category = session.query(Category).filter_by(id=category_id).one()
     categories = session.query(Category).order_by(asc(Category.name))
     items = session.query(Item).filter_by(category_id=category_id).all()
-    return render_template('showitems.html', items=items, category=category, categories=categories, state=state)
+    return render_template('showitems.html', items=items, category=category, categories=categories, STATE=state)
 
 @app.route('/item/<int:item_id>')
 def showItemDescription(item_id):
@@ -433,4 +429,4 @@ def getUserID(email):
 if __name__ == '__main__':
     app.secret_key = 'super_secret_key'
     app.debug = True
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=8000)
