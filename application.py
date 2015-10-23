@@ -277,70 +277,61 @@ def categoriesJSON():
 
 
 # Home screen shows all categories and the latest items, which in turn have their categories tagged
-@app.route('/')
-@app.route('/category/')
+@app.route('/', methods=['GET', 'POST'])
+@app.route('/category/', methods=['GET', 'POST'])
 def showLatest():
     state = generateState()
     categories = session.query(Category).order_by(asc(Category.name))
     latestItems = session.query(Item, Category).filter(Item.category_id==Category.id)
-    latestItems = latestItems.order_by(desc(Item.addDate)).limit(10)
+    latestItems = latestItems.order_by(asc(Item.addDate)).limit(10)
+    if request.method == 'POST':
+        formtype = request.form['formtype']
+        print "Processing Form of type " + formtype
+        if formtype == 'newitem':
+            newItem('showLatest')
+        if formtype == 'newcategory':
+            newCategory('showLatest')
+    # fallthrough to just rerendering homepage - just in case
     return render_template('index.html', categories=categories, items=latestItems, STATE=state)
 
 
 # Create a new category
-@app.route('/category/new/', methods=['GET', 'POST'])
-def newCategory():
+# @app.route('/category/new/', methods=['GET', 'POST'])
+def newCategory(camefrom):
+    print "DEBUG: entered newCategory() from " + camefrom
     if 'email' not in login_session:
-        return redirect('/login')
-    if request.method == 'POST':
+        return redirect('/')
+    else:
         newCategory = Category(name=request.form['name'], user_id=login_session['user_id'])
         session.add(newCategory)
         flash('New Category %s Successfully Created' % newCategory.name)
         session.commit()
-        return redirect(url_for('showCategories'))
-    else:
-        return render_template('newCategory.html')
-
-# Edit a category
-
-
-@app.route('/category/<int:category_id>/edit/', methods=['GET', 'POST'])
-def editCategory(category_id):
-    editedCategory = session.query(Category).filter_by(id=category_id).one()
-    if 'email' not in login_session or login_session['user_id'] != editedCategory.user_id:
-        return redirect('/login')
-    if request.method == 'POST':
-        if request.form['name']:
-            editedCategory.name = request.form['name']
-            flash('Category Successfully Edited %s' % editedCategory.name)
-            return redirect(url_for('showCategories'))
-    else:
-        return render_template('editCategory.html', category=editedCategory)
-
-
-# Delete a category
-@app.route('/category/<int:category_id>/delete/', methods=['GET', 'POST'])
-def deleteCategory(category_id):
-    categoryToDelete = session.query(Category).filter_by(id=category_id).one()
-    if 'email' not in login_session or login_session['user_id'] != categoryToDelete.user_id:
-        return redirect('/login')
-    if request.method == 'POST':
-        session.delete(categoryToDelete)
-        flash('%s Successfully Deleted' % categoryToDelete.name)
-        session.commit()
-        return redirect(url_for('showCategories', category_id=category_id))
-    else:
-        return render_template('deleteCategory.html', category=categoryToDelete)
+        newCategory = session.query(Category).filter(Category.name==request.form['name']).one()
+        print "DEBUG newCategory:  category_id = " + str(newCategory.id) + ", camefrom = " + camefrom
+        if camefrom == 'showItems':
+            return newCategory.id
+        else:
+            return
 
 # Show a category item
 
 
-@app.route('/category/<int:category_id>/')
+@app.route('/category/<int:category_id>/', methods=['GET', 'POST'])
 def showItems(category_id):
     state = generateState()
+    categories = session.query(Category).order_by(asc(Category.name))
+    items = session.query(Item).filter_by(category_id=category_id).all()
+    if request.method == 'POST':
+        formtype = request.form['formtype']
+        print "DEBUG showItems: Processing Form of type " + formtype
+        if formtype == 'newitem':
+            newItem('showItems')
+        if formtype == 'newcategory':
+            category_id = newCategory('showItems')
     category = session.query(Category).filter_by(id=category_id).one()
     categories = session.query(Category).order_by(asc(Category.name))
     items = session.query(Item).filter_by(category_id=category_id).all()
+    print "DEBUG: back to showItems routine, ready to rerender"
     return render_template('showitems.html', items=items, category=category, categories=categories, STATE=state)
 
 @app.route('/item/<int:item_id>')
@@ -350,22 +341,21 @@ def showItemDescription(item_id):
     return render_template('item.html', item=item)
 
 # Create a new item item
-@app.route('/category/<int:category_id>/item/new/', methods=['GET', 'POST'])
-def newItem(category_id):
-    category = session.query(Category).filter_by(id=category_id).one()
-    if 'email' not in login_session or login_session['user_id'] != category.user_id:
-        return redirect('/login')
-    if request.method == 'POST':
+# implementing this as a modal, so a separate web address is not necessary to access.
+# function gets called from showLatest or showItems
+# @app.route('/category/item/new/', methods=['GET', 'POST'])
+def newItem(camefrom):
+    print "DEBUG: newItem() entered from " + camefrom
+    if 'email' not in login_session:
+        return redirect('/')
+    else:
         newItem = Item(name=request.form['name'], description=request.form[
-                            'description'], price=request.form['price'],
-                            course=request.form['course'], category_id=
-                            category_id, user_id=category.user_id)
+                            'description'], imgURL=request.form['imgURL'],
+                            category_id=request.form['category_id'], user_id=login_session['user_id'])
         session.add(newItem)
         session.commit()
         flash('New Items %s Item Successfully Created' % (newItem.name))
-        return redirect(url_for('showItem', category_id=category_id))
-    else:
-        return render_template('newitem.html', category_id=category_id)
+        return
 
 # Edit an item
 
@@ -388,7 +378,7 @@ def editItem(category_id, item_id):
         session.add(editedItem)
         session.commit()
         flash('Item Successfully Edited')
-        return redirect(url_for('showItem', category_id=category_id))
+        return redirect(url_for('showItems', category_id=category_id))
     else:
         return render_template('edititem.html', category_id=category_id, item_id=item_id, item=editedItem)
 

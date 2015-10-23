@@ -1,5 +1,8 @@
 	<div class="col-md-7 item-list">
 		<h2>Latest Items</h2>
+		{% if 'email' in session %}
+			{% include 'newitem-modal.html' %}
+		{% endif %}
 		<ul>
 			{% for item, category in items %}
 				<li><a href = "{{url_for('showItemDescription', item_id=item.id)}}">
