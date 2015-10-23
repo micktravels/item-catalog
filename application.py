@@ -367,7 +367,7 @@ def showItemDescription(item_id):
             editItem(item_id)
         if formtype == 'deleteitem':
             deleteItem(item_id)
-            return render_template('/')
+            return redirect(url_for('showLatest'))
     return render_template('showitemdescription.html', item=item, creator=creator)
 
 # Edit an existing item
