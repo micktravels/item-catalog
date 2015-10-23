@@ -283,7 +283,7 @@ def showLatest():
     state = generateState()
     categories = session.query(Category).order_by(asc(Category.name))
     latestItems = session.query(Item, Category).filter(Item.category_id==Category.id)
-    latestItems = latestItems.order_by(asc(Item.addDate)).limit(10)
+    latestItems = latestItems.order_by(asc(Item.addDate)).limit(7)
     if request.method == 'POST':
         formtype = request.form['formtype']
         print "Processing Form of type " + formtype

@@ -1,14 +1,21 @@
 
 	<div class="col-md-3 category-list">
-		<h2>Categories</h2>
-			{% if 'email' in session %}
-				{% include 'newcategory-modal.html' %}
-			{% endif %}
-		<ul>
-			{% for category in categories %}
-				<li><a href = "{{url_for('showItems', category_id=category.id)}}">
-				<h3>{{category.name}}</h3>
-				</a></li>
-			{% endfor %}
-		</ul>
+		<div class="row">
+			<h2 class="col-xs-8">Categories</h2>
+			<div class="col-xs-4">
+				{% if 'email' in session %}
+					{% include 'newcategory-modal.html' %}
+				{% endif %}
+			</div>
+		</div>
+
+		<div class="row">
+			<ul>
+				{% for category in categories %}
+					<li><a href = "{{url_for('showItems', category_id=category.id)}}">
+					<h3>{{category.name}}</h3>
+					</a></li>
+				{% endfor %}
+			</ul>
+		</div>
 	</div>
