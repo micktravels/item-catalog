@@ -1,5 +1,5 @@
 
-
+<!-- this template is shared by NEWITEM and EDITITEM -->
 <div class="container">   
 	<!-- Modal -->
 	<div class="modal fade" id="newItemModal" tabindex="-1" role="dialog" aria-labelledby="newItemModalLabel">
@@ -8,7 +8,11 @@
 	      <form action="#" method = "post">
 	      <div class="modal-header">
 	        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-	        <h4 class="modal-title" id="myModalLabel">Create Item</h4>
+	        {% if item %}
+	        	<h4 class="modal-title" id="myModalLabel">Edit {{item.name}}</h4>
+	        {% else %}
+	        	<h4 class="modal-title" id="myModalLabel">Create Item</h4>
+	        {% endif %}
 	      </div>
 	      <div class="modal-body">
 
@@ -22,15 +26,29 @@
 					<br>
 
 					<label for="name">Name:</label>
-					<input type ="text" maxlength="50" class="form-control" name="name"placeholder="Name of the item">
+					{% if item %}
+	        			<input type ="text" maxlength="50" class="form-control" name="name" placeholder="{{item.name}}">
+	        		{% else %}
+	        			<input type ="text" maxlength="50" class="form-control" name="name" placeholder="Name of the item">
+	        		{% endif %}
+
 					<br>
 
 					<label for="description">Description:</label>
-					<textarea class="form-control" maxlength="250" rows="3" name="description" placeholder="Description of the item"></textarea>
+					{% if item %}
+	        			<textarea class="form-control" maxlength="250" rows="3" name="description" placeholder="{{item.description}}"></textarea>
+	        		{% else %}
+	        			<textarea class="form-control" maxlength="250" rows="3" name="description" placeholder="Description of the item"></textarea>
+	        		{% endif %}
 					<br>
 
 					<label for="imgURL">Image URL:</label>
-					<input type ="text" maxlength="80" class="form-control" name="imgURL" placeholder="http://www.imageURL.com/">
+					{% if item and item.imgURL %}
+	        			<input type ="text" maxlength="80" class="form-control" name="imgURL" placeholder="{{item.imgURL}}">
+	        		{% else %}
+	        			<input type ="text" maxlength="80" class="form-control" name="imgURL" placeholder="http://www.imageURL.com/">
+	        		{% endif %}
+					
 					<br>
 
 					<input type="hidden" name="formtype" value="newitem">
