@@ -46,7 +46,9 @@
         {% endif %}
     </div>
     <div class="col-md-8 text-right">
-        {% if 'email' in session %}
+        {% if 'email' not in session %}
+            <button type="button" class="btn btn-default" onclick="location='/'">Back</button>
+        {% elif session.email == creator.email %}
             {% include 'newitem-modal.html' %}
             {% include 'deleteitem-modal.html' %}
             <button type="button" class="btn btn-primary btn-md" data-toggle="modal" data-target="#newItemModal">Edit</button>
