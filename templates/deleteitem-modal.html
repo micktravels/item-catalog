@@ -1,0 +1,30 @@
+
+
+<div class="container">   
+	<!-- Modal -->
+	<div class="modal fade" id="deleteItemModal" tabindex="-1" role="dialog" aria-labelledby="deleteItemModalLabel">
+	  <div class="modal-dialog text-left" role="document">
+	    <div class="modal-content">
+	      <form action="#" method = "post">
+	      <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	        <h4 class="modal-title" id="myModalLabel">Delete Item</h4>
+	      </div>
+	      <div class="modal-body">
+
+				<div class="form-group">
+					Are you sure you want to delete {{item.name}}?
+					<br>
+					<input type="hidden" name="formtype" value="deleteitem">
+				</div>
+	      </div>
+	      <div class="modal-footer">
+	        <button type="submit" class="btn btn-danger" id="submit" type="submit">
+			<span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete</button>
+			<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+	      </div>
+	      </form>
+	    </div>
+	  </div>
+	</div>
+</div>  

@@ -307,7 +307,7 @@ def newCategory(camefrom):
         flash('New Category %s Successfully Created' % newCategory.name)
         session.commit()
         newCategory = session.query(Category).filter(Category.name==request.form['name']).one()
-        print "DEBUG newCategory:  category_id = " + str(newCategory.id) + ", camefrom = " + camefrom
+        # print "DEBUG newCategory:  category_id = " + str(newCategory.id) + ", camefrom = " + camefrom
         if camefrom == 'showItems':
             return newCategory.id
         else:
@@ -323,7 +323,7 @@ def showItems(category_id):
     items = session.query(Item).filter_by(category_id=category_id).all()
     if request.method == 'POST':
         formtype = request.form['formtype']
-        print "DEBUG showItems: Processing Form of type " + formtype
+        # print "DEBUG showItems: Processing Form of type " + formtype
         if formtype == 'newitem':
             newItem('showItems')
         if formtype == 'newcategory':
@@ -334,19 +334,12 @@ def showItems(category_id):
     print "DEBUG: back to showItems routine, ready to rerender"
     return render_template('showitems.html', items=items, category=category, categories=categories, STATE=state)
 
-@app.route('/item/<int:item_id>')
-def showItemDescription(item_id):
-    item = session.query(Item).filter_by(id=item_id).one()
-    print "DEBUG showItemDescription:  user_id = " + str(item.user_id)
-    creator = getUserInfo(item.user_id)
-    return render_template('showitemdescription.html', item=item, creator=creator)
-
 # Create a new item item
 # implementing this as a modal, so a separate web address is not necessary to access.
 # function gets called from showLatest or showItems
 # @app.route('/category/item/new/', methods=['GET', 'POST'])
 def newItem(camefrom):
-    print "DEBUG: newItem() entered from " + camefrom
+    # print "DEBUG: newItem() entered from " + camefrom
     if 'email' not in login_session:
         return redirect('/')
     else:
@@ -358,46 +351,63 @@ def newItem(camefrom):
         flash('New Items %s Item Successfully Created' % (newItem.name))
         return
 
-# Edit an item
-
-
-@app.route('/category/<int:category_id>/item/<int:item_id>/edit', methods=['GET', 'POST'])
-def editItem(category_id, item_id):
-    editedItem = session.query(Item).filter_by(id=item_id).one()
-    if 'email' not in login_session or login_session['user_id'] != editedItem.user_id:
-        return redirect('/login')
-    category = session.query(Category).filter_by(id=category_id).one()
+#showItemDescription repurposes the entire screen for a single item.
+# buttons exist on the bottom of the screen to EDIT, DELETE, or go back, depending if you are logged in or not
+# EDIT and DELETE buttons are simple forms with a single hidden attribute
+@app.route('/item/<int:item_id>', methods=['GET', 'POST'])
+def showItemDescription(item_id):
+    item = session.query(Item).filter_by(id=item_id).one()
+    print "DEBUG showItemDescription"
+    creator = getUserInfo(item.user_id)
+    # POST will come from an editItem or deleteItem modal
     if request.method == 'POST':
-        if request.form['name']:
-            editedItem.name = request.form['name']
-        if request.form['description']:
-            editedItem.description = request.form['description']
-        if request.form['price']:
-            editedItem.price = request.form['price']
-        if request.form['course']:
-            editedItem.course = request.form['course']
-        session.add(editedItem)
-        session.commit()
-        flash('Item Successfully Edited')
-        return redirect(url_for('showItems', category_id=category_id))
-    else:
-        return render_template('edititem.html', category_id=category_id, item_id=item_id, item=editedItem)
+        formtype = request.form['formtype']
+        print "DEBUG showItemDescription: Processing Form of type " + formtype
+        if formtype == 'edititem':
+            editItem(item_id)
+        if formtype == 'deleteitem':
+            deleteItem(item_id)
+            return render_template('/')
+    return render_template('showitemdescription.html', item=item, creator=creator)
+
+# Edit an existing item
+# implementing this as a modal, so a separate web address is not necessary to access.
+# function gets called from showItemDescription modal which already processed the POST and brought us here
+# @app.route('/item/<int:item_id>/edit', methods=['GET', 'POST'])
+def editItem(item_id):
+    editedItem = session.query(Item).filter_by(id=item_id).one()
+    if 'email' not in login_session:
+        # we should never get here, but just in case...
+        return redirect('/')
+    category = session.query(Category).filter_by(id=category_id).one()
+
+    if request.form['name']:
+        editedItem.name = request.form['name']
+    if request.form['description']:
+        editedItem.description = request.form['description']
+    if request.form['imgURL']:
+        editedItem.price = request.form['imgURL']
+    if request.form['category_id']:
+        editedItem.course = request.form['category_id']
+    session.add(editedItem)
+    session.commit()
+    flash('Item Successfully Edited')
+    return
 
 
 # Delete a item item
-@app.route('/category/<int:category_id>/item/<int:item_id>/delete', methods=['GET', 'POST'])
-def deleteItem(category_id, item_id):
-    category = session.query(Category).filter_by(id=category_id).one()
+# implementing this as a modal, so a separate web address is not necessary to access.
+# function gets called from showItemDescription modal which already processed the POST and brought us here
+# @app.route('/category/<int:category_id>/item/<int:item_id>/delete', methods=['GET', 'POST'])
+def deleteItem(item_id):
     itemToDelete = session.query(Item).filter_by(id=item_id).one()
-    if 'email' not in login_session or login_session['user_id'] != itemToDelete.user_id:
+    if 'email' not in login_session:
+        # we shouldn't ever get here, but just in case...
         return redirect('/login')
-    if request.method == 'POST':
-        session.delete(itemToDelete)
-        session.commit()
-        flash('Item Successfully Deleted')
-        return redirect(url_for('showItem', category_id=category_id))
-    else:
-        return render_template('deleteItem.html', item=itemToDelete)
+    session.delete(itemToDelete)
+    session.commit()
+    flash('Item Successfully Deleted')
+    return
 
 def createUser(login_session):
     newUser = User(name=login_session['username'], email=login_session['email'], picture=login_session['picture'])
@@ -421,3 +431,10 @@ if __name__ == '__main__':
     app.secret_key = 'super_secret_key'
     app.debug = True
     app.run(host='0.0.0.0', port=8000)
+
+"""dot.notation access to dictionary attributes"""
+class dotdict(dict):
+    def __getattr__(self, attr):
+        return self.get(attr)
+    __setattr__= dict.__setitem__
+    __delattr__= dict.__delitem__
