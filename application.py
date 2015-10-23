@@ -254,7 +254,7 @@ def disconnect():
         return redirect(url_for('showLatest'))
 
 
-
+"""
 # JSON APIs to view Category Information
 @app.route('/category/<int:category_id>/item/JSON')
 def categoryJSON(category_id):
@@ -274,7 +274,7 @@ def itemJSON(category_id, item_id):
 def categoriesJSON():
     categories = session.query(Category).all()
     return jsonify(categories=[r.serialize for r in categories])
-
+"""
 
 # Home screen shows all categories and the latest items, which in turn have their categories tagged
 @app.route('/', methods=['GET', 'POST'])
@@ -337,8 +337,9 @@ def showItems(category_id):
 @app.route('/item/<int:item_id>')
 def showItemDescription(item_id):
     item = session.query(Item).filter_by(id=item_id).one()
+    print "DEBUG showItemDescription:  user_id = " + str(item.user_id)
     creator = getUserInfo(item.user_id)
-    return render_template('item.html', item=item)
+    return render_template('showitemdescription.html', item=item, creator=creator)
 
 # Create a new item item
 # implementing this as a modal, so a separate web address is not necessary to access.
