@@ -27,27 +27,43 @@ def CreateRandomAge():
        return entryday
 
 # Create dummy user
-User1 = User(name="Robo Barista", email="tinnyTim@udacity.com",
+user = User(name="Robo Barista", email="tinnyTim@udacity.com",
              picture='https://pbs.twimg.com/profile_images/2671170543/18debd694829ed78203a5a36dd364160_400x400.png')
-session.add(User1)
+session.add(user)
 session.commit()
 
-# Menu for UrbanBurger
-category1 = Category(user_id=1, name="Cameras", imgURL="")
+user = User(name="M Fink", email="mick@micktravels.com")
+session.add(user)
+session.commit()
+
+# Populate Category 1
+category1 = Category(user_id=1, name="Kitchen", imgURL="")
 
 session.add(category1)
 session.commit()
 
-item2 = Item(user_id=1, name="Canon", description="New image stabilization", imgURL="", addDate=CreateRandomAge(), category=category1)
+item = Item(user_id=2, name="Cheese Straightener", description="Miniature Multi Purpose Cheese Pipe Straightener, to straighten your bend cheese pipe." + 
+	"Areas of Application: straightens all types and flavors of cheese", imgURL="http://www.in.all.biz/img/in/catalog/616893.png", addDate=CreateRandomAge(), category=category1)
 
-session.add(item2)
+session.add(item)
 session.commit()
 
 
-item2 = Item(user_id=1, name="Polaroid", description="Old standard", imgURL="", addDate=CreateRandomAge(), category=category1)
+item = Item(user_id=1, name="Spoon Rest", description="Oversized Stainless Steel Spoon Rest. Beauty and function find this 18/8 polished spoon rest " +
+	"ever present in the cooks space ", imgURL="http://ecx.images-amazon.com/images/I/31VBC7MA7EL.jpg",
+	addDate=CreateRandomAge(), category=category1)
 
-session.add(item2)
+session.add(item)
 session.commit()
+
+
+item = Item(user_id=1, name="Asparagus Peeler", description="" + 
+	" The peeler may also be used to snip the ends of green beans and sugar snap peas.",  imgURL="http://ecx.images-amazon.com/images/I/715AMKclk-L._SL1500_.jpg",
+	addDate=CreateRandomAge(), category=category1)
+
+session.add(item)
+session.commit()
+
 
 print "added items!"
 
