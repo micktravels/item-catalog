@@ -42,6 +42,7 @@ def generateState():
 
 @app.route('/fbconnect', methods=['POST'])
 def fbconnect():
+    print "DEBUG: fbconnect:  initiated"
     if request.args.get('state') != login_session['state']:
         response = make_response(json.dumps('Invalid state parameter.'), 401)
         response.headers['Content-Type'] = 'application/json'
@@ -196,13 +197,15 @@ def gconnect():
 
     output = ''
     output += '<h1>Welcome, '
-    output += login_session['username']
-    output += '!</h1>'
-    output += 'Email = ' + login_session['email']
-    output += '<img src="'
-    output += login_session['picture']
+    if login_session['username']:
+        output += login_session['username'] + '!</h1>'
+        flash("you are now logged in as %s" % login_session['username'])
+    else:
+        output += login_session['email'] + '</h1>'
+        flash("you are now logged in as %s" % login_session['email'])
+    output += '<img src="' + login_session['picture']
     output += ' " style = "width: 300px; height: 300px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
-    flash("you are now logged in as %s" % login_session['username'])
+
     print "done!"
     return output
 
