@@ -42,13 +42,13 @@ def generateState():
 
 @app.route('/fbconnect', methods=['POST'])
 def fbconnect():
-    print "DEBUG: fbconnect:  initiated"
+    # print "DEBUG: fbconnect:  initiated"
     if request.args.get('state') != login_session['state']:
         response = make_response(json.dumps('Invalid state parameter.'), 401)
         response.headers['Content-Type'] = 'application/json'
         return response
     access_token = request.data
-    print "access token received %s " % access_token
+    # print "access token received %s " % access_token
 
     app_id = json.loads(open('fb_client_secrets.json', 'r').read())[
         'web']['app_id']
@@ -119,7 +119,7 @@ def fbdisconnect():
 @app.route('/gconnect', methods=['POST'])
 def gconnect():
     # Validate state token, that 32-character random string thingy
-    print "STATE = " + request.args.get('state')
+    # print "STATE = " + request.args.get('state')
     if request.args.get('state') != login_session['state']:
         response = make_response(json.dumps('Invalid state parameter.'), 401)
         response.headers['Content-Type'] = 'application/json'
@@ -205,7 +205,6 @@ def gconnect():
         flash("you are now logged in as %s" % login_session['email'])
     output += '<img src="' + login_session['picture']
     output += ' " style = "width: 300px; height: 300px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
-
     print "done!"
     return output
 
@@ -257,20 +256,18 @@ def disconnect():
         return redirect(url_for('showLatest'))
 
 # Full nested JSON dump of database
-@app.route('/JSON')
-def JSONdump():
+@app.route('/JSON/')
+def dumpJSON():
     categories = session.query(Category).all()
     categoryList = []
     for c in categories:
         cdict = {}
-        print "Category loop: " + c.name
         cdict['id'] = c.id
         cdict['name'] = c.name
         items = session.query(Item).filter(Item.category_id==c.id).all()
         itemList = []
         for i in items:
             idict = {}
-            print "   Item loop: " + i.name
             idict['id'] = i.id
             idict['name'] = i.name
             idict['description'] = i.description
@@ -281,9 +278,13 @@ def JSONdump():
         # and let's add the category dictionary to the full list of categories
         categoryList.append(cdict)
     jsonDict = {'Categories': categoryList}
-    print jsonDict
     return jsonify(jsonDict)
 
+@app.route('/XML/')
+def dumpXML():
+    categories = session.query(Category).all()
+    items = session.query(Item).all()
+    return render_template('items.xml', categories=categories, items=items)
 
 # Home screen shows all categories and the latest items, which in turn have their categories tagged
 @app.route('/', methods=['GET', 'POST'])
@@ -295,7 +296,7 @@ def showLatest():
     latestItems = latestItems.order_by(asc(Item.addDate)).limit(7)
     if request.method == 'POST':
         formtype = request.form['formtype']
-        print "Processing Form of type " + formtype
+        # print "Processing Form of type " + formtype
         if formtype == 'newitem':
             newItem('showLatest')
         if formtype == 'newcategory':
@@ -307,7 +308,7 @@ def showLatest():
 # Create a new category
 # @app.route('/category/new/', methods=['GET', 'POST'])
 def newCategory(camefrom):
-    print "DEBUG: entered newCategory() from " + camefrom
+    # print "DEBUG: entered newCategory() from " + camefrom
     if 'email' not in login_session:
         return redirect('/')
     else:
@@ -340,7 +341,7 @@ def showItems(category_id):
     category = session.query(Category).filter_by(id=category_id).one()
     categories = session.query(Category).order_by(asc(Category.name))
     items = session.query(Item).filter_by(category_id=category_id).all()
-    print "DEBUG: back to showItems routine, ready to rerender"
+    # print "DEBUG: back to showItems routine, ready to rerender"
     return render_template('showitems.html', items=items, category=category, categories=categories, STATE=state)
 
 # Create a new item item
@@ -366,12 +367,12 @@ def newItem(camefrom):
 @app.route('/item/<int:item_id>', methods=['GET', 'POST'])
 def showItemDescription(item_id):
     item = session.query(Item).filter_by(id=item_id).one()
-    print "DEBUG showItemDescription"
+    # print "DEBUG showItemDescription"
     creator = getUserInfo(item.user_id)
     # POST will come from an editItem or deleteItem modal
     if request.method == 'POST':
         formtype = request.form['formtype']
-        print "DEBUG showItemDescription: Processing Form of type " + formtype
+        # print "DEBUG showItemDescription: Processing Form of type " + formtype
         if formtype == 'edititem':
             editItem(item_id)
         if formtype == 'deleteitem':
