@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<author>
+		<name>M Fink</name>
+	</author>
+	<title type="text">Useless CrApp Item List</title>
+	{% for item, category in items, categories %}
+	<entry>
+		<title type="text">{{item.name}}</title>
+		<summary type="xhtml">
+			<div xmlns="http://www.w3.org/1999/xhtml">
+				<p>ID: <item_id>{{item.id}}</item_id></p>
+				<p>Item Name: <name>{{item.name}}</name></p>
+				<p>Item Description: <item_description>{{item.description}}</description></p>
+				<p>Image URL: <imgURL>{{item.imgURL}}</imgURL></p>
+				<p>Item Name: <category>{{category.name}}</category></p>
+			</div>
+		</summary>
+	</entry>
+	{% endfor %}
+</feed>

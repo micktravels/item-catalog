@@ -256,28 +256,34 @@ def disconnect():
         flash("You were not logged in")
         return redirect(url_for('showLatest'))
 
-
-"""
-# JSON APIs to view Category Information
-@app.route('/category/<int:category_id>/item/JSON')
-def categoryJSON(category_id):
-    category = session.query(Category).filter_by(id=category_id).one()
-    items = session.query(Item).filter_by(
-        category_id=category_id).all()
-    return jsonify(Items=[i.serialize for i in items])
-
-
-@app.route('/category/<int:category_id>/item/<int:item_id>/JSON')
-def itemJSON(category_id, item_id):
-    Item = session.query(Item).filter_by(id=item_id).one()
-    return jsonify(Item=Item.serialize)
-
-
-@app.route('/category/JSON')
-def categoriesJSON():
+# Full nested JSON dump of database
+@app.route('/JSON')
+def JSONdump():
     categories = session.query(Category).all()
-    return jsonify(categories=[r.serialize for r in categories])
-"""
+    categoryList = []
+    for c in categories:
+        cdict = {}
+        print "Category loop: " + c.name
+        cdict['id'] = c.id
+        cdict['name'] = c.name
+        items = session.query(Item).filter(Item.category_id==c.id).all()
+        itemList = []
+        for i in items:
+            idict = {}
+            print "   Item loop: " + i.name
+            idict['id'] = i.id
+            idict['name'] = i.name
+            idict['description'] = i.description
+            idict['imgURL'] = i.imgURL
+            itemList.append(idict)
+        # now we have a list of item dictionaries to add to the category dictionary
+        cdict['items'] = itemList
+        # and let's add the category dictionary to the full list of categories
+        categoryList.append(cdict)
+    jsonDict = {'Categories': categoryList}
+    print jsonDict
+    return jsonify(jsonDict)
+
 
 # Home screen shows all categories and the latest items, which in turn have their categories tagged
 @app.route('/', methods=['GET', 'POST'])
