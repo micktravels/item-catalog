@@ -1,1 +1,17 @@
-Place your catalog project in this directory.
+Welcome to the P3 Item Catalog application.
+
+Features Supported:
+	Google and Facebook OAuth 2.0 login
+	Creation of Categories and Items if you are logged in
+	Editing and Deleting of Item if you are logged in AND you own the Items
+	Image support for Items
+	Bootstrap Modal support for editing, creating, deleting, and logi
+	JSON and XML data (via <URL>/JSON and <URL>/XML)
+	pre-populated database of exciting items in popular categories
+	Smart use of nested html templates to reduce coding
+	
+How to run:
+	Bring Vagrant VM up
+	> python application.py
+	http://localhost:8000
+	ENJOY!
