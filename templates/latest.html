@@ -1,7 +1,7 @@
-	<div class="col-md-7 item-panel">
+	<div class="item-panel">
 		<div class="row">
-			<h2 class="col-xs-6">Latest Items</h2>
-			<div class="col-xs-6 text-right create-button">
+			<h2 class="col-xs-8">Latest Items</h2>
+			<div class="col-xs-4 text-right create-button">
 				{% if 'email' in session %}
 					<!-- Button trigger modal goes here because we use the modal for both create and edit items -->
 					<button type="button" class="btn btn-primary btn-md" data-toggle="modal" data-target="#newItemModal">
@@ -18,7 +18,7 @@
 			<div class="col-xs-10"><hr></div>
 			<div class="col-xs-1"></div>
 		</div>
-		
+
 		<div class="item-list">
 		{% for item, category in items %}
 			<div class="row">

@@ -18,15 +18,19 @@
     <div class="col-md-12"><hr></div>
 </div>
 
-<!-- Layout = 1, 3, 7, 1 -->
 
 <div class="row main-screen">
-	<div class="col-md-1 side-column"></div>
-        <div class="meat-and-potatoes">
-		{% include "categories.html" %}
-		{% include "latest.html" %}
+    <div class="col-md-1 side-column"></div>
+        <div class="col-md-10 meat-and-potatoes">
+            <div class="row">
+                <div class="col-sm-4">
+                    {% include "categories.html" %}
+                </div>
+                <div class="col-sm-8">
+                    {% include "latest.html" %}
+                </div>
+            </div>
         </div>
-	<div class="col-md-1 side-column"></div>
+    <div class="col-md-1 side-column"></div>
 </div>
-
 {% endblock %}
