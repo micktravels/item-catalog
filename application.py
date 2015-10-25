@@ -30,6 +30,9 @@ DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
 
+
+############### BEGIN LOGIN CODE SECTION ################
+
 # Create anti-forgery state token.  Since the Login page is now a modal that's part of every screen,
 # this STATE gets regenerated on every page whenever you aren't logged in
 def generateState():
@@ -40,6 +43,8 @@ def generateState():
         login_session['state'] = state
     return login_session['state']
 
+# This function connects with Facebook.  It's called from the login.html page after a user enters username and password
+# It was almost entirely borrowed from the class lesson
 @app.route('/fbconnect', methods=['POST'])
 def fbconnect():
     # print "DEBUG: fbconnect:  initiated"
@@ -64,7 +69,6 @@ def fbconnect():
     # strip expire tag from access token
     token = result.split("&")[0]
 
-
     url = 'https://graph.facebook.com/v2.4/me?%s&fields=name,id,email' % token
     h = httplib2.Http()
     result = h.request(url, 'GET')[1]
@@ -88,7 +92,7 @@ def fbconnect():
 
     login_session['picture'] = data["data"]["url"]
 
-    # see if user exists
+    # see if user exists in the database
     user_id = getUserID(login_session['email'])
     if not user_id:
         user_id = createUser(login_session)
@@ -105,7 +109,7 @@ def fbconnect():
     flash("Now logged in as %s" % login_session['username'])
     return output
 
-
+# Disconnect from facebook.  Called from the disconnect function
 @app.route('/fbdisconnect')
 def fbdisconnect():
     facebook_id = login_session['facebook_id']
@@ -116,6 +120,7 @@ def fbdisconnect():
     result = h.request(url, 'DELETE')[1]
     return "you have been logged out"
 
+# Connect to google.  This function was almost entirely borrowed from the class project
 @app.route('/gconnect', methods=['POST'])
 def gconnect():
     # Validate state token, that 32-character random string thingy
@@ -208,6 +213,7 @@ def gconnect():
     print "done!"
     return output
 
+# Disconnect from google.  This function is called by the disconnect function.
 @app.route('/gdisconnect')
 def gdisconnect():
         # Only disconnect a connected user.
@@ -233,7 +239,7 @@ def gdisconnect():
         response.headers['Content-Type'] = 'application/json'
         return response
 
-# Disconnect based on provider
+# Disconnect based on provider.  Called when user clicks the Logout link
 @app.route('/disconnect')
 def disconnect():
     if 'provider' in login_session:
@@ -254,6 +260,11 @@ def disconnect():
     else:
         flash("You were not logged in")
         return redirect(url_for('showLatest'))
+
+############## END LOGIN CODE SECTION ####################
+
+
+############## BEGIN ENDPOINT SECTION ####################
 
 # Full nested JSON dump of database
 @app.route('/JSON/')
@@ -280,11 +291,18 @@ def dumpJSON():
     jsonDict = {'Categories': categoryList}
     return jsonify(jsonDict)
 
+# Full nested XML dump of the database.  Done using a template
 @app.route('/XML/')
 def dumpXML():
     categories = session.query(Category).all()
     items = session.query(Item).all()
     return render_template('items.xml', categories=categories, items=items)
+
+################# END ENDPOINT CODE SECTION #####################
+
+
+
+################# BEGIN CATALOG PROCESSING SECTION ####################
 
 # Home screen shows all categories and the latest items, which in turn have their categories tagged
 @app.route('/', methods=['GET', 'POST'])
@@ -366,6 +384,7 @@ def newItem(camefrom):
 # EDIT and DELETE buttons are simple forms with a single hidden attribute
 @app.route('/item/<int:item_id>', methods=['GET', 'POST'])
 def showItemDescription(item_id):
+    categories = session.query(Category).order_by(asc(Category.name))
     item = session.query(Item).filter_by(id=item_id).one()
     # print "DEBUG showItemDescription"
     creator = getUserInfo(item.user_id)
@@ -378,7 +397,7 @@ def showItemDescription(item_id):
         if formtype == 'deleteitem':
             deleteItem(item_id)
             return redirect(url_for('showLatest'))
-    return render_template('showitemdescription.html', item=item, creator=creator)
+    return render_template('showitemdescription.html', item=item, creator=creator, categories=categories)
 
 # Edit an existing item
 # implementing this as a modal, so a separate web address is not necessary to access.
@@ -389,16 +408,14 @@ def editItem(item_id):
     if 'email' not in login_session:
         # we should never get here, but just in case...
         return redirect('/')
-    category = session.query(Category).filter_by(id=category_id).one()
-
     if request.form['name']:
         editedItem.name = request.form['name']
     if request.form['description']:
         editedItem.description = request.form['description']
     if request.form['imgURL']:
-        editedItem.price = request.form['imgURL']
+        editedItem.imgURL = request.form['imgURL']
     if request.form['category_id']:
-        editedItem.course = request.form['category_id']
+        editedItem.category_id = request.form['category_id']
     session.add(editedItem)
     session.commit()
     flash('Item Successfully Edited')
@@ -419,6 +436,11 @@ def deleteItem(item_id):
     flash('Item Successfully Deleted')
     return
 
+################## END CATALOG PROCESSING SECTION ###################
+
+
+################## MISC HELPFUL FUNCTIONS ###################
+
 def createUser(login_session):
     newUser = User(name=login_session['username'], email=login_session['email'], picture=login_session['picture'])
     session.add(newUser)
@@ -437,14 +459,9 @@ def getUserID(email):
     except:
         return None
 
+################### END MISC HELPFUL FUNCTIONS ###################
+
 if __name__ == '__main__':
     app.secret_key = 'super_secret_key'
     app.debug = True
     app.run(host='0.0.0.0', port=8000)
-
-"""dot.notation access to dictionary attributes"""
-class dotdict(dict):
-    def __getattr__(self, attr):
-        return self.get(attr)
-    __setattr__= dict.__setitem__
-    __delattr__= dict.__delitem__
