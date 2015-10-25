@@ -16,48 +16,46 @@
     <hr>
 </div>
 
-<div class="main-screen">
+<div class="main-description-screen">
     <div class="row">
     	<div class="col-md-1 side-column"></div>
-        <div class="meat-and-potatoes">
-            <div class="col-md-2">
-                <img src="{{item.imgURL}}" class="img-responsive"alt="{{item.name}}">
+        <div class="col-md-10 description-body">
+            <div class="row">
+                <div class="col-xs-3">
+                    <img src="{{item.imgURL}}" class="img-responsive"alt="{{item.name}}">
+                </div>
+                <div class="col-xs-9 item-description">
+                    <h2>{{item.name}}</h2>
+                    {{item.description}}
+                </div>
             </div>
-            <div class="col-md-8 item-description">
-                <h2>{{item.name}}</h2>
-                {{item.description}}
+
+            <div class="row">
+                <div class="col-xs-1"></div>
+                <div class="col-xs-10"><hr></div>
+                <div class="col-xs-1"></div>
             </div>
-        </div>
-    	<div class="col-md-1 side-column"></div>
-    </div>
 
-    <div class="row">
-        <div class="col-md-1 side-column"></div>
-        <div class="col-md-10 side-column">
-            <hr>
-        </div>
-        <div class="col-md-1"></div>
-    </div>
-
-    <div class="row">
-        <div class="col-md-1 side-column"></div>
-        <div class="col-md-2 creator">
-            {% if 'email' in session %}
-                {{creator.email}}
-            {% endif %}
-        </div>
-        <div class="col-md-8 text-right">
-            {% if 'email' not in session %}
-                <button type="button" class="btn btn-default" onclick="location='/'">Back</button>
-            {% elif session.email == creator.email %}
-                {% include 'newitem-modal.html' %}
-                {% include 'deleteitem-modal.html' %}
-                <button type="button" class="btn btn-primary btn-md" data-toggle="modal" data-target="#newItemModal">Edit</button>
-                <button type="button" class="btn btn-danger btn-md" data-toggle="modal" data-target="#deleteItemModal">Delete</button>
-                <button type="button" class="btn btn-default" onclick="location='/'">Cancel</button>
-            {% else %}
-                <button type="button" class="btn btn-default" onclick="location='/'">Back</button>
-            {% endif %}
+            <div class="row">
+                <div class="col-xs-3 creator">
+                    {% if 'email' in session %}
+                        {{creator.email}}
+                    {% endif %}
+                </div>
+                <div class="col-xs-9 text-right description-buttons">
+                    {% if 'email' not in session %}
+                        <button type="button" class="btn btn-default" onclick="location='/'">Back</button>
+                    {% elif session.email == creator.email %}
+                        {% include 'newitem-modal.html' %}
+                        {% include 'deleteitem-modal.html' %}
+                        <button type="button" class="btn btn-primary btn-md" data-toggle="modal" data-target="#newItemModal">Edit</button>
+                        <button type="button" class="btn btn-danger btn-md" data-toggle="modal" data-target="#deleteItemModal">Delete</button>
+                        <button type="button" class="btn btn-default" onclick="location='/'">Cancel</button>
+                    {% else %}
+                        <button type="button" class="btn btn-default" onclick="location='/'">Back</button>
+                    {% endif %}
+                </div>
+            </div>
         </div>
         <div class="col-md-1 side-column"></div>
     </div>

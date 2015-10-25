@@ -14,9 +14,28 @@
 	height: 650px;
 }
 
+.main-description-screen {
+	background-color: lavender;
+}
+
 .meat-and-potatoes {
 	height: 600px;
 	margin-top: 25px;
+}
+
+.description-body{
+	margin-top: 25px;
+	margin-bottom: 25px;
+	background-color: white;
+}
+
+.description-buttons {
+	margin-bottom: 10px;
+}
+
+.creator {
+	vertical-align: bottom;
+	font-style: italic;
 }
 
 .category-panel, .item-panel{
