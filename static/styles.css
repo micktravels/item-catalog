@@ -1,0 +1,72 @@
+.title-login-bar {
+	background-color: #600080;
+	margin-top: 10px;
+	padding-top: 20px;
+	color: white;
+}
+
+.title-login-bar a {
+	color: #C0C0FF;
+}
+
+.main-screen {
+	background-color: lavender;
+	height: 650px;
+}
+
+.meat-and-potatoes {
+	height: 600px;
+	margin-top: 25px;
+}
+
+.category-panel, .item-panel{
+	background-color: white;
+	height: inherit;
+	margin: 2px;
+	padding-top: 10px;
+}
+
+.category-list, .item-list {
+	overflow: scroll;
+	height: 500px;
+}
+
+.side-column {
+	height: inherit;
+	background-color: lavender;
+}
+
+h1 {
+	font-size: 48px;
+	line-height: 75%;
+	margin: 0 0 0 0;
+	padding-bottom: 20px;
+}
+
+h2 {
+	margin: 0 0 0 0;
+	padding-bottom: 10px;
+	padding-top: 10px;
+	line-height: 75%;
+}
+
+img {
+	padding: 2px;
+}
+
+ul {
+	list-style-type: none;
+}
+.flash {
+	background-color: #98FB98;
+	width:100%;
+	text-decoration: none;
+	text-align: center;
+}
+
+.create-button {
+	padding: 5px;
+}
+
+
+

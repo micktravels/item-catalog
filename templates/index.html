@@ -3,7 +3,7 @@
 {% include "header.html" %}
 
 
-<div class = 'flash'>
+<div class="flash">
 	{% with messages = get_flashed_messages() %}
     	{% if messages %}     
         <ul>
@@ -13,18 +13,20 @@
         </ul>
         {% endif %}
     {% endwith %}
-    <hr>
+</div>
+<div class="row">
+    <div class="col-md-12"><hr></div>
 </div>
 
 <!-- Layout = 1, 3, 7, 1 -->
 
 <div class="row main-screen">
-	<div class="col-md-1"></div>
-
+	<div class="col-md-1 side-column"></div>
+        <div class="meat-and-potatoes">
 		{% include "categories.html" %}
 		{% include "latest.html" %}
-
-	<div class="col-md-1"></div>
+        </div>
+	<div class="col-md-1 side-column"></div>
 </div>
 
 {% endblock %}

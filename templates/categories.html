@@ -1,8 +1,8 @@
 
-	<div class="col-md-3 category-list">
+	<div class="col-md-3 category-panel">
 		<div class="row">
 			<h2 class="col-xs-8">Categories</h2>
-			<div class="col-xs-4">
+			<div class="col-xs-4 create-button">
 				{% if 'email' in session %}
 					{% include 'newcategory-modal.html' %}
 				{% endif %}
@@ -10,6 +10,12 @@
 		</div>
 
 		<div class="row">
+			<div class="col-xs-1"></div>
+			<div class="col-xs-10"><hr></div>
+			<div class="col-xs-1"></div>
+		</div>
+
+		<div class="row category-list">
 			<ul>
 				{% for category in categories %}
 					<li><a href = "{{url_for('showItems', category_id=category.id)}}">
