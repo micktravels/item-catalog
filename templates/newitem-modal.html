@@ -56,6 +56,8 @@
 						<input type="hidden" name="formtype" value="newitem">
 					{% endif %}
 
+					<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+
 				</div>
 	      </div>
 	      <div class="modal-footer">

@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, redirect, jsonify, url_for, flash
+from flask.ext.seasurf import SeaSurf
 from sqlalchemy import create_engine, asc, desc, func, distinct
 from sqlalchemy.orm import sessionmaker
 from database_setup import Base, Category, Item, User
@@ -15,7 +16,8 @@ from flask import make_response
 import requests
 
 app = Flask(__name__)
-
+csrf = SeaSurf(app)
+csrf.init_app(app)
 
 CLIENT_ID = json.loads(
     open('client_secrets.json', 'r').read())['web']['client_id']
@@ -45,6 +47,7 @@ def generateState():
 
 # This function connects with Facebook.  It's called from the login.html page after a user enters username and password
 # It was almost entirely borrowed from the class lesson
+@csrf.exempt
 @app.route('/fbconnect', methods=['POST'])
 def fbconnect():
     # print "DEBUG: fbconnect:  initiated"
@@ -110,6 +113,7 @@ def fbconnect():
     return output
 
 # Disconnect from facebook.  Called from the disconnect function
+@csrf.exempt
 @app.route('/fbdisconnect')
 def fbdisconnect():
     facebook_id = login_session['facebook_id']
@@ -121,6 +125,7 @@ def fbdisconnect():
     return "you have been logged out"
 
 # Connect to google.  This function was almost entirely borrowed from the class project
+@csrf.exempt
 @app.route('/gconnect', methods=['POST'])
 def gconnect():
     # Validate state token, that 32-character random string thingy
@@ -214,6 +219,7 @@ def gconnect():
     return output
 
 # Disconnect from google.  This function is called by the disconnect function.
+@csrf.exempt
 @app.route('/gdisconnect')
 def gdisconnect():
         # Only disconnect a connected user.
@@ -240,6 +246,7 @@ def gdisconnect():
         return response
 
 # Disconnect based on provider.  Called when user clicks the Logout link
+@csrf.exempt
 @app.route('/disconnect')
 def disconnect():
     if 'provider' in login_session:

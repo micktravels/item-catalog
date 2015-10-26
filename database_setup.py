@@ -21,7 +21,6 @@ class Category(Base):
     __tablename__ = 'category'
     name = Column(String(80), nullable = False)
     id = Column(Integer, primary_key = True)
-    imgURL = Column(String(120))
     user_id = Column(Integer,ForeignKey('user.id'))
     user = relationship(User)
     
@@ -30,7 +29,6 @@ class Category(Base):
         return {
             'id': self.id,
             'name': self.name,
-            'imgURL': self.imgURL,
             'user_id': self.user_id
         }
 

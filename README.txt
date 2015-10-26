@@ -9,9 +9,12 @@ Features Supported:
 	JSON and XML data (via <URL>/JSON and <URL>/XML)
 	pre-populated database of exciting items in popular categories
 	Smart use of nested html templates to reduce coding
+	CSRF protection for all POST requests
 	
 How to run:
 	Bring Vagrant VM up
 	> python application.py
 	http://localhost:8000
 	ENJOY!
+
+Comes with database populator tool, afewitems.py, in case you want to start over

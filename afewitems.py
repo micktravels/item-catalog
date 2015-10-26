@@ -37,7 +37,7 @@ session.add(user)
 session.commit()
 
 # Populate Category 1
-category = Category(user_id=1, name="Kitchen", imgURL="")
+category = Category(user_id=1, name="Kitchen")
 
 session.add(category)
 session.commit()
@@ -72,7 +72,7 @@ session.add(item)
 session.commit()
 
 # Populate Category 2
-category = Category(user_id=2, name="High-Tech", imgURL="")
+category = Category(user_id=2, name="High-Tech")
 
 session.add(category)
 session.commit()
@@ -114,7 +114,7 @@ session.add(item)
 session.commit()
 
 # Third Category
-category = Category(user_id=2, name="Office", imgURL="")
+category = Category(user_id=2, name="Office")
 
 session.add(category)
 session.commit()

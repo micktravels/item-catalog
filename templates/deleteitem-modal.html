@@ -16,6 +16,7 @@
 					Are you sure you want to delete {{item.name}}?
 					<br>
 					<input type="hidden" name="formtype" value="deleteitem">
+					<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 				</div>
 	      </div>
 	      <div class="modal-footer">
