@@ -1,4 +1,5 @@
-from flask import Flask, render_template, request, redirect, jsonify, url_for, flash
+from flask import Flask, render_template, request, redirect, jsonify, url_for
+from flask import flash
 from flask.ext.seasurf import SeaSurf
 from sqlalchemy import create_engine, asc, desc, func, distinct
 from sqlalchemy.orm import sessionmaker
@@ -11,7 +12,7 @@ import string
 from oauth2client.client import flow_from_clientsecrets
 from oauth2client.client import FlowExchangeError
 import httplib2
-import json
+import json, simplejson
 from flask import make_response
 import requests
 
@@ -31,21 +32,23 @@ Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
-
-
 ############### BEGIN LOGIN CODE SECTION ################
 
-# Create anti-forgery state token.  Since the Login page is now a modal that's part of every screen,
-# this STATE gets regenerated on every page whenever you aren't logged in
+
+# Create anti-forgery state token.  Since the Login page is now a modal that's
+# part of every screen, this STATE gets regenerated on every page whenever you
+# aren't logged in
 def generateState():
     # only update a random STATE if we aren't already logged in
     if 'email' not in login_session:
         state = ''.join(random.choice(string.ascii_uppercase + string.digits)
-                    for x in xrange(32))
+                        for x in xrange(32))
         login_session['state'] = state
     return login_session['state']
 
-# This function connects with Facebook.  It's called from the login.html page after a user enters username and password
+
+# This function connects with Facebook.  It's called from the login.html page
+# after a user enters username and password
 # It was almost entirely borrowed from the class lesson
 @csrf.exempt
 @app.route('/fbconnect', methods=['POST'])
@@ -62,8 +65,10 @@ def fbconnect():
         'web']['app_id']
     app_secret = json.loads(
         open('fb_client_secrets.json', 'r').read())['web']['app_secret']
-    url = 'https://graph.facebook.com/oauth/access_token?grant_type=fb_exchange_token&client_id=%s&client_secret=%s&fb_exchange_token=%s' % (
-        app_id, app_secret, access_token)
+    urlstring = 'https://graph.facebook.com/oauth/access_token?grant_type='
+    urlstring += 'fb_exchange_token&client_id=%s&client_secret=%s'
+    urlstring += '&fb_exchange_token=%s'
+    url = urlstring % (app_id, app_secret, access_token)
     h = httplib2.Http()
     result = h.request(url, 'GET')[1]
 
@@ -77,21 +82,26 @@ def fbconnect():
     result = h.request(url, 'GET')[1]
     # print "url sent for API access:%s"% url
     # print "API JSON result: %s" % result
-    data = json.loads(result)
+    data = simplejson.loads(result)
+    
     login_session['provider'] = 'facebook'
     login_session['username'] = data["name"]
     login_session['email'] = data["email"]
     login_session['facebook_id'] = data["id"]
 
-    # The token must be stored in the login_session in order to properly logout, let's strip out the information before the equals sign in our token
+    # The token must be stored in the login_session in order to properly
+    # logout, let's strip out the information before the equals sign in our
+    # token
     stored_token = token.split("=")[1]
     login_session['access_token'] = stored_token
 
     # Get user picture
-    url = 'https://graph.facebook.com/v2.4/me/picture?%s&redirect=0&height=200&width=200' % token
+    urlstring = 'https://graph.facebook.com/v2.4/me/picture?%s&redirect=0'
+    urlstring += '&height=200&width=200'
+    url = urlstring % token
     h = httplib2.Http()
     result = h.request(url, 'GET')[1]
-    data = json.loads(result)
+    data = simplejson.loads(result)
 
     login_session['picture'] = data["data"]["url"]
 
@@ -107,10 +117,12 @@ def fbconnect():
     output += '!</h1>'
     output += '<img src="'
     output += login_session['picture']
-    output += ' " style = "width: 300px; height: 300px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
+    output += ' " style = "width: 300px; height: 300px;border-radius: 150px;'
+    output += '-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
 
     flash("Now logged in as %s" % login_session['username'])
     return output
+
 
 # Disconnect from facebook.  Called from the disconnect function
 @csrf.exempt
@@ -119,12 +131,15 @@ def fbdisconnect():
     facebook_id = login_session['facebook_id']
     # The access token must me included to successfully logout
     access_token = login_session['access_token']
-    url = 'https://graph.facebook.com/%s/permissions?access_token=%s' % (facebook_id,access_token)
+    urlstring = 'https://graph.facebook.com/%s/permissions?access_token=%s'
+    url = urlstring % (facebook_id, access_token)
     h = httplib2.Http()
     result = h.request(url, 'DELETE')[1]
     return "you have been logged out"
 
-# Connect to google.  This function was almost entirely borrowed from the class project
+
+# Connect to google.  This function was almost entirely borrowed from the
+# class project
 @csrf.exempt
 @app.route('/gconnect', methods=['POST'])
 def gconnect():
@@ -178,7 +193,7 @@ def gconnect():
     stored_credentials = login_session.get('credentials')
     stored_gplus_id = login_session.get('gplus_id')
     if stored_credentials is not None and gplus_id == stored_gplus_id:
-        response = make_response(json.dumps('Current user is already connected.'),
+        response = make_response(json.dumps('Current user already connected.'),
                                  200)
         response.headers['Content-Type'] = 'application/json'
         return response
@@ -204,7 +219,6 @@ def gconnect():
         user_id = createUser(login_session)
     login_session['user_id'] = user_id
 
-
     output = ''
     output += '<h1>Welcome, '
     if login_session['username']:
@@ -214,9 +228,11 @@ def gconnect():
         output += login_session['email'] + '</h1>'
         flash("you are now logged in as %s" % login_session['email'])
     output += '<img src="' + login_session['picture']
-    output += ' " style = "width: 300px; height: 300px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
+    output += ' " style = "width: 300px; height: 300px;border-radius: 150px;'
+    output += '-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
     print "done!"
     return output
+
 
 # Disconnect from google.  This function is called by the disconnect function.
 @csrf.exempt
@@ -244,6 +260,7 @@ def gdisconnect():
             json.dumps('Failed to revoke token for given user.', 400))
         response.headers['Content-Type'] = 'application/json'
         return response
+
 
 # Disconnect based on provider.  Called when user clicks the Logout link
 @csrf.exempt
@@ -273,6 +290,7 @@ def disconnect():
 
 ############## BEGIN ENDPOINT SECTION ####################
 
+
 # Full nested JSON dump of database
 @app.route('/JSON/')
 def dumpJSON():
@@ -282,7 +300,7 @@ def dumpJSON():
         cdict = {}
         cdict['id'] = c.id
         cdict['name'] = c.name
-        items = session.query(Item).filter(Item.category_id==c.id).all()
+        items = session.query(Item).filter(Item.category_id == c.id).all()
         itemList = []
         for i in items:
             idict = {}
@@ -291,12 +309,13 @@ def dumpJSON():
             idict['description'] = i.description
             idict['imgURL'] = i.imgURL
             itemList.append(idict)
-        # now we have a list of item dictionaries to add to the category dictionary
+        # now we have a list of item dictionaries to add to the category dict
         cdict['items'] = itemList
         # and let's add the category dictionary to the full list of categories
         categoryList.append(cdict)
     jsonDict = {'Categories': categoryList}
     return jsonify(jsonDict)
+
 
 # Full nested XML dump of the database.  Done using a template
 @app.route('/XML/')
@@ -308,16 +327,17 @@ def dumpXML():
 ################# END ENDPOINT CODE SECTION #####################
 
 
-
 ################# BEGIN CATALOG PROCESSING SECTION ####################
 
-# Home screen shows all categories and the latest items, which in turn have their categories tagged
+# Home screen shows all categories and the latest items, which in turn have
+# their categories tagged
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/category/', methods=['GET', 'POST'])
 def showLatest():
     state = generateState()
     categories = session.query(Category).order_by(asc(Category.name))
-    latestItems = session.query(Item, Category).filter(Item.category_id==Category.id)
+    latestItems = session.query(Item, Category).filter(Item.category_id ==
+                  Category.id)
     latestItems = latestItems.order_by(asc(Item.addDate)).limit(7)
     if request.method == 'POST':
         formtype = request.form['formtype']
@@ -327,7 +347,8 @@ def showLatest():
         if formtype == 'newcategory':
             newCategory('showLatest')
     # fallthrough to just rerendering homepage - just in case
-    return render_template('index.html', categories=categories, items=latestItems, STATE=state)
+    return render_template('index.html', categories=categories,
+                           items=latestItems, STATE=state)
 
 
 # Create a new category
@@ -337,20 +358,20 @@ def newCategory(camefrom):
     if 'email' not in login_session:
         return redirect('/')
     else:
-        newCategory = Category(name=request.form['name'], user_id=login_session['user_id'])
+        newCategory = Category(name=request.form['name'],
+                               user_id=login_session['user_id'])
         session.add(newCategory)
         flash('New Category %s Successfully Created' % newCategory.name)
         session.commit()
-        newCategory = session.query(Category).filter(Category.name==request.form['name']).one()
-        # print "DEBUG newCategory:  category_id = " + str(newCategory.id) + ", camefrom = " + camefrom
+        newCategory = session.query(Category).filter(Category.name ==
+                      request.form['name']).one()
         if camefrom == 'showItems':
             return newCategory.id
         else:
             return
 
+
 # Show a category item
-
-
 @app.route('/category/<int:category_id>/', methods=['GET', 'POST'])
 def showItems(category_id):
     state = generateState()
@@ -367,10 +388,12 @@ def showItems(category_id):
     categories = session.query(Category).order_by(asc(Category.name))
     items = session.query(Item).filter_by(category_id=category_id).all()
     # print "DEBUG: back to showItems routine, ready to rerender"
-    return render_template('showitems.html', items=items, category=category, categories=categories, STATE=state)
+    return render_template('showitems.html', items=items, category=category,
+                           categories=categories, STATE=state)
+
 
 # Create a new item item
-# implementing this as a modal, so a separate web address is not necessary to access.
+# implementing this as a modal, so a separate web address is not required.
 # function gets called from showLatest or showItems
 # @app.route('/category/item/new/', methods=['GET', 'POST'])
 def newItem(camefrom):
@@ -379,15 +402,18 @@ def newItem(camefrom):
         return redirect('/')
     else:
         newItem = Item(name=request.form['name'], description=request.form[
-                            'description'], imgURL=request.form['imgURL'],
-                            category_id=request.form['category_id'], user_id=login_session['user_id'])
+                       'description'], imgURL=request.form['imgURL'],
+                       category_id=request.form['category_id'],
+                       user_id=login_session['user_id'])
         session.add(newItem)
         session.commit()
         flash('New Items %s Item Successfully Created' % (newItem.name))
         return
 
-#showItemDescription repurposes the entire screen for a single item.
-# buttons exist on the bottom of the screen to EDIT, DELETE, or go back, depending if you are logged in or not
+
+# showItemDescription repurposes the entire screen for a single item.
+# buttons exist on the bottom of the screen to EDIT, DELETE, or go back,
+# depending if you are logged in or not
 # EDIT and DELETE buttons are simple forms with a single hidden attribute
 @app.route('/item/<int:item_id>', methods=['GET', 'POST'])
 def showItemDescription(item_id):
@@ -398,17 +424,19 @@ def showItemDescription(item_id):
     # POST will come from an editItem or deleteItem modal
     if request.method == 'POST':
         formtype = request.form['formtype']
-        # print "DEBUG showItemDescription: Processing Form of type " + formtype
         if formtype == 'edititem':
             editItem(item_id)
         if formtype == 'deleteitem':
             deleteItem(item_id)
             return redirect(url_for('showLatest'))
-    return render_template('showitemdescription.html', item=item, creator=creator, categories=categories)
+    return render_template('showitemdescription.html', item=item,
+                           creator=creator, categories=categories)
+
 
 # Edit an existing item
-# implementing this as a modal, so a separate web address is not necessary to access.
-# function gets called from showItemDescription modal which already processed the POST and brought us here
+# implementing this as a modal, so a separate web address is not required
+# function gets called from showItemDescription modal which already processed
+# the POST and brought us here
 # @app.route('/item/<int:item_id>/edit', methods=['GET', 'POST'])
 def editItem(item_id):
     editedItem = session.query(Item).filter_by(id=item_id).one()
@@ -430,9 +458,11 @@ def editItem(item_id):
 
 
 # Delete a item item
-# implementing this as a modal, so a separate web address is not necessary to access.
-# function gets called from showItemDescription modal which already processed the POST and brought us here
-# @app.route('/category/<int:category_id>/item/<int:item_id>/delete', methods=['GET', 'POST'])
+# implementing this as a modal, so a separate web address is not required
+# function gets called from showItemDescription modal which already processed
+# the POST and brought us here
+# @app.route('/category/<int:category_id>/item/<int:item_id>/delete',
+#       methods=['GET', 'POST'])
 def deleteItem(item_id):
     itemToDelete = session.query(Item).filter_by(id=item_id).one()
     if 'email' not in login_session:
@@ -449,15 +479,19 @@ def deleteItem(item_id):
 ################## MISC HELPFUL FUNCTIONS ###################
 
 def createUser(login_session):
-    newUser = User(name=login_session['username'], email=login_session['email'], picture=login_session['picture'])
+    newUser = User(name=login_session['username'],
+                   email=login_session['email'],
+                   picture=login_session['picture'])
     session.add(newUser)
     session.commit()
     user = session.query(User).filter_by(email=login_session['email']).one()
     return user.id
 
+
 def getUserInfo(user_id):
     user = session.query(User).filter_by(id=user_id).one()
     return user
+
 
 def getUserID(email):
     try:
