@@ -7,6 +7,7 @@ from database_setup import Base, Category, Item, User
 from flask import session as login_session
 import random
 import string
+import psycopg2
 
 # IMPORTS FOR THIS STEP
 from oauth2client.client import flow_from_clientsecrets
@@ -21,12 +22,13 @@ csrf = SeaSurf(app)
 csrf.init_app(app)
 
 CLIENT_ID = json.loads(
-    open('client_secrets.json', 'r').read())['web']['client_id']
+    open('/var/www/html/client_secrets.json', 'r').read())['web']['client_id']
 APPLICATION_NAME = "Category Application"
 
 
 # Connect to Database and create database session
-engine = create_engine('sqlite:///catalog.db')
+engine = create_engine('postgresql+psycopg2://catalog:Adm9ZHtw52pcGDGeWmZY@localhost/catalog')
+# engine = create_engine('sqlite:///catalog.db')
 Base.metadata.bind = engine
 
 DBSession = sessionmaker(bind=engine)
@@ -505,4 +507,4 @@ def getUserID(email):
 if __name__ == '__main__':
     app.secret_key = 'super_secret_key'
     app.debug = True
-    app.run(host='0.0.0.0', port=8000)
+    app.run(host='52.26.20.173', port=80)
