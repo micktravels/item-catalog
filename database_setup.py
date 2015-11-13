@@ -1,5 +1,6 @@
 import os
 import sys
+import psycopg2
 from sqlalchemy import Column, ForeignKey, Integer, String, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
@@ -55,7 +56,9 @@ class Item(Base):
         'user_id': self.user_id
 	}
 
-engine = create_engine('sqlite:///catalog.db')
+# Change from sqlite to postgresql
+# engine = create_engine('sqlite:///catalog.db')
+engine = create_engine('postgresql+psycopg2://catalog:Adm9ZHtw52pcGDGeWmZY@localhost/catalog')
 
 # Adds our classes as new tables in database
 Base.metadata.create_all(engine)

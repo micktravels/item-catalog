@@ -7,6 +7,7 @@ from database_setup import Base, Category, Item, User
 from flask import session as login_session
 import random
 import string
+import psycopg2
 
 # IMPORTS FOR THIS STEP
 from oauth2client.client import flow_from_clientsecrets
@@ -26,7 +27,8 @@ APPLICATION_NAME = "Category Application"
 
 
 # Connect to Database and create database session
-engine = create_engine('sqlite:///catalog.db')
+engine = create_engine('postgresql+psycopg2://catalog:Adm9ZHtw52pcGDGeWmZY@localhost/catalog')
+# engine = create_engine('sqlite:///catalog.db')
 Base.metadata.bind = engine
 
 DBSession = sessionmaker(bind=engine)

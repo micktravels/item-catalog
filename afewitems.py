@@ -1,11 +1,17 @@
 import datetime
+import psycopg2
 from random import randint
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from database_setup import Category, Base, Item, User
 
-engine = create_engine('sqlite:///catalog.db')
+# We're moving from sqlite to postgresql
+# engine = create_engine('sqlite:///catalog.db')
+# new engine command follows this syntax:
+#    dialect+driver://username:password@host:port/database
+engine = create_engine('postgresql+psycopg2://catalog:Adm9ZHtw52pcGDGeWmZY@localhost/catalog')
+
 # Bind the engine to the metadata of the Base class so that the
 # declaratives can be accessed through a DBSession instance
 Base.metadata.bind = engine
@@ -78,8 +84,8 @@ session.add(category)
 session.commit()
 
 item = Item(user_id=2, name="DVD Rewinder", description="The DVD Rewinder works with all disc based digital media to provide optimized digital experience.  " + 
-	"Visual indicators blink and audible sounds are played while your digital media is 'reversed.'  " +
-	"The DVD Rewinder also has a USB port for MP3 players and USB media.  " +
+#	"Visual indicators blink and audible sounds are played while your digital media is 'reversed.'  " +
+#	"The DVD Rewinder also has a USB port for MP3 players and USB media.  " +
 	"You can record your own sounds that play during rewind or use the digital recorder to store reminders.  ",
 	imgURL="http://farm1.static.flickr.com/129/409584733_4b5f57f338_o.jpg", addDate=CreateRandomAge(), category=category)
 
@@ -88,7 +94,7 @@ session.commit()
 
 
 item = Item(user_id=1, name="Toilet Roll iPod Dock", description="You'll never miss a song even in the bathroom with Atech's 'iLounge hybrid toilet paper dispenser/iPod dock'.  " + 
-	"The iLounge supports all iPod models that have a dock connector and has an integrated USB slot for the Shuffle.  " +
+#	"The iLounge supports all iPod models that have a dock connector and has an integrated USB slot for the Shuffle.  " +
 	"Speakers are concealed in the dispenser's arms with navigation buttons located conveniently on top for easy access.",
 	imgURL="http://farm1.static.flickr.com/184/409584740_9acb1dd52d_o.jpg", addDate=CreateRandomAge(), category=category)
 
@@ -106,7 +112,7 @@ session.commit()
 
 item = Item(user_id=2, name="Defusable Bomb Alarm Clock", description="Time Bomb shaped design perfect for heavy sleepers.  " + 
 	"In game mode, player is required to defuse the bomb by taking away correct one of the 4 wires within the 10 second countdown.  " +
-	"Alarm clock function - 4 digital clock display (in 24 hr format)  " +
+#	"Alarm clock function - 4 digital clock display (in 24 hr format)  " +
 	"Contains built-in rechargeable battery and USB port.  ",
 	imgURL="http://ecx.images-amazon.com/images/I/41PoPdjTQ6L.jpg", addDate=CreateRandomAge(), category=category)
 
@@ -120,8 +126,8 @@ session.add(category)
 session.commit()
 
 item = Item(user_id=2, name="That's Bullshit Button", description="The That's Bullshit Button is the preferred method of calling someone out on BS, when they start spewing ridiculous lies!  " + 
-	"Batteries are included with the Bullshit sound effects button!  Features 5 Bullshit phrases.  " +
-	"The DVD Rewinder also has a USB port for MP3 players and USB media.  " +
+#	"Batteries are included with the Bullshit sound effects button!  Features 5 Bullshit phrases.  " +
+#	"The DVD Rewinder also has a USB port for MP3 players and USB media.  " +
 	"The giant red button talks the talk, lights up, flashes and even includes multiple background sound effects.  ",
 	imgURL="http://ecx.images-amazon.com/images/I/81JeYrkECwL._SL1500_.jpg", addDate=CreateRandomAge(), category=category)
 
