@@ -98,14 +98,15 @@ def fbconnect():
     login_session['access_token'] = stored_token
 
     # Get user picture
-    urlstring = 'https://graph.facebook.com/v2.4/me/picture?%s&redirect=0'
-    urlstring += '&height=200&width=200'
-    url = urlstring % token
-    h = httplib2.Http()
-    result = h.request(url, 'GET')[1]
-    data = simplejson.loads(result)
+    # Disabled - we don't need this
+    # urlstring = 'https://graph.facebook.com/v2.4/me/picture?%s&redirect=0'
+    # urlstring += '&height=200&width=200'
+    # url = urlstring % token
+    # h = httplib2.Http()
+    # result = h.request(url, 'GET')[1]
+    # data = simplejson.loads(result)
 
-    login_session['picture'] = data["data"]["url"]
+    # login_session['picture'] = data["data"]["url"]
 
     # see if user exists in the database
     user_id = getUserID(login_session['email'])
@@ -117,10 +118,10 @@ def fbconnect():
     output += '<h1>Welcome, '
     output += login_session['username']
     output += '!</h1>'
-    output += '<img src="'
-    output += login_session['picture']
-    output += ' " style = "width: 300px; height: 300px;border-radius: 150px;'
-    output += '-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
+#   output += '<img src="'
+#   output += login_session['picture']
+#   output += ' " style = "width: 300px; height: 300px;border-radius: 150px;'
+#   output += '-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
 
     flash("Now logged in as %s" % login_session['username'])
     return output
@@ -213,7 +214,7 @@ def gconnect():
 
     login_session['provider'] = 'google'
     login_session['username'] = data['name']
-    login_session['picture'] = data['picture']
+#   login_session['picture'] = data['picture']
     login_session['email'] = data['email']
 
     user_id = getUserID(login_session['email'])
@@ -229,9 +230,9 @@ def gconnect():
     else:
         output += login_session['email'] + '</h1>'
         flash("you are now logged in as %s" % login_session['email'])
-    output += '<img src="' + login_session['picture']
-    output += ' " style = "width: 300px; height: 300px;border-radius: 150px;'
-    output += '-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
+#   output += '<img src="' + login_session['picture']
+#   output += ' " style = "width: 300px; height: 300px;border-radius: 150px;'
+#   output += '-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
     print "done!"
     return output
 
@@ -278,7 +279,7 @@ def disconnect():
             del login_session['facebook_id']
         del login_session['username']
         del login_session['email']
-        del login_session['picture']
+#       del login_session['picture']
         del login_session['user_id']
         del login_session['provider']
         flash("You have successfully been logged out.")
@@ -482,8 +483,8 @@ def deleteItem(item_id):
 
 def createUser(login_session):
     newUser = User(name=login_session['username'],
-                   email=login_session['email'],
-                   picture=login_session['picture'])
+                   email=login_session['email'])
+#                  picture=login_session['picture'])
     session.add(newUser)
     session.commit()
     user = session.query(User).filter_by(email=login_session['email']).one()
