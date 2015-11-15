@@ -22,7 +22,7 @@ csrf = SeaSurf(app)
 csrf.init_app(app)
 
 CLIENT_ID = json.loads(
-    open('client_secrets.json', 'r').read())['web']['client_id']
+    open('/var/www/html/client_secrets.json', 'r').read())['web']['client_id']
 APPLICATION_NAME = "Category Application"
 
 
@@ -63,10 +63,10 @@ def fbconnect():
     access_token = request.data
     # print "access token received %s " % access_token
 
-    app_id = json.loads(open('fb_client_secrets.json', 'r').read())[
+    app_id = json.loads(open('/var/www/html/fb_client_secrets.json', 'r').read())[
         'web']['app_id']
     app_secret = json.loads(
-        open('fb_client_secrets.json', 'r').read())['web']['app_secret']
+        open('/var/www/html/fb_client_secrets.json', 'r').read())['web']['app_secret']
     urlstring = 'https://graph.facebook.com/oauth/access_token?grant_type='
     urlstring += 'fb_exchange_token&client_id=%s&client_secret=%s'
     urlstring += '&fb_exchange_token=%s'
@@ -98,14 +98,15 @@ def fbconnect():
     login_session['access_token'] = stored_token
 
     # Get user picture
-    urlstring = 'https://graph.facebook.com/v2.4/me/picture?%s&redirect=0'
-    urlstring += '&height=200&width=200'
-    url = urlstring % token
-    h = httplib2.Http()
-    result = h.request(url, 'GET')[1]
-    data = simplejson.loads(result)
+    # Disabled - we don't need this
+    # urlstring = 'https://graph.facebook.com/v2.4/me/picture?%s&redirect=0'
+    # urlstring += '&height=200&width=200'
+    # url = urlstring % token
+    # h = httplib2.Http()
+    # result = h.request(url, 'GET')[1]
+    # data = simplejson.loads(result)
 
-    login_session['picture'] = data["data"]["url"]
+    # login_session['picture'] = data["data"]["url"]
 
     # see if user exists in the database
     user_id = getUserID(login_session['email'])
@@ -117,10 +118,10 @@ def fbconnect():
     output += '<h1>Welcome, '
     output += login_session['username']
     output += '!</h1>'
-    output += '<img src="'
-    output += login_session['picture']
-    output += ' " style = "width: 300px; height: 300px;border-radius: 150px;'
-    output += '-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
+#   output += '<img src="'
+#   output += login_session['picture']
+#   output += ' " style = "width: 300px; height: 300px;border-radius: 150px;'
+#   output += '-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
 
     flash("Now logged in as %s" % login_session['username'])
     return output
@@ -156,7 +157,7 @@ def gconnect():
 
     try:
         # Upgrade the authorization code into a credentials object
-        oauth_flow = flow_from_clientsecrets('client_secrets.json', scope='')
+        oauth_flow = flow_from_clientsecrets('/var/www/html/client_secrets.json', scope='')
         oauth_flow.redirect_uri = 'postmessage'
         credentials = oauth_flow.step2_exchange(code)
     except FlowExchangeError:
@@ -201,7 +202,7 @@ def gconnect():
         return response
 
     # Store the access token in the session for later use.
-    login_session['credentials'] = credentials
+    login_session['credentials'] = credentials.access_token
     login_session['gplus_id'] = gplus_id
 
     # Get user info
@@ -213,7 +214,7 @@ def gconnect():
 
     login_session['provider'] = 'google'
     login_session['username'] = data['name']
-    login_session['picture'] = data['picture']
+#   login_session['picture'] = data['picture']
     login_session['email'] = data['email']
 
     user_id = getUserID(login_session['email'])
@@ -229,9 +230,9 @@ def gconnect():
     else:
         output += login_session['email'] + '</h1>'
         flash("you are now logged in as %s" % login_session['email'])
-    output += '<img src="' + login_session['picture']
-    output += ' " style = "width: 300px; height: 300px;border-radius: 150px;'
-    output += '-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
+#   output += '<img src="' + login_session['picture']
+#   output += ' " style = "width: 300px; height: 300px;border-radius: 150px;'
+#   output += '-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
     print "done!"
     return output
 
@@ -247,7 +248,7 @@ def gdisconnect():
             json.dumps('Current user not connected.'), 401)
         response.headers['Content-Type'] = 'application/json'
         return response
-    access_token = credentials.access_token
+    access_token = credentials
     url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % access_token
     h = httplib2.Http()
     result = h.request(url, 'GET')[0]
@@ -278,7 +279,7 @@ def disconnect():
             del login_session['facebook_id']
         del login_session['username']
         del login_session['email']
-        del login_session['picture']
+#       del login_session['picture']
         del login_session['user_id']
         del login_session['provider']
         flash("You have successfully been logged out.")
@@ -482,8 +483,8 @@ def deleteItem(item_id):
 
 def createUser(login_session):
     newUser = User(name=login_session['username'],
-                   email=login_session['email'],
-                   picture=login_session['picture'])
+                   email=login_session['email'])
+#                  picture=login_session['picture'])
     session.add(newUser)
     session.commit()
     user = session.query(User).filter_by(email=login_session['email']).one()
@@ -507,4 +508,4 @@ def getUserID(email):
 if __name__ == '__main__':
     app.secret_key = 'super_secret_key'
     app.debug = True
-    app.run(host='0.0.0.0', port=8000)
+    app.run(host='52.26.20.173', port=80)
